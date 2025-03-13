@@ -7,11 +7,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pdfplumber  # Extract text from PDF resumes
 
-# Load NLP model (Download first if not installed: python -m spacy download en_core_web_sm)
+
 nlp = spacy.load("en_core_web_sm")
 
-# Sample Job Descriptions Dataset
-# Ensure each Job Title has a matching Job Description
+
 job_titles = [
     "Web Developer", "Frontend Developer", "Backend Developer", "Full Stack Developer",
     "Software Engineer", "Mobile App Developer", "Game Developer", 
@@ -89,15 +88,14 @@ job_descriptions = [
     "Assist customers with travel planning, ticket booking, and itinerary management."
 ]
 
-# Creating DataFrame
-# Ensure both lists have the same length
+
 min_length = min(len(job_titles), len(job_descriptions))
 
-# Trim lists to the shortest length
+
 job_titles = job_titles[:min_length]
 job_descriptions = job_descriptions[:min_length]
 
-# Create DataFrame
+
 jobs_df = pd.DataFrame({
     "Job_Title": job_titles,
     "Job_Description": job_descriptions
@@ -107,7 +105,7 @@ print("DataFrame created successfully!")
 
 
 
-# Function to extract text from a PDF resume
+
 def extract_text_from_pdf(pdf_file):
     text = ""
     with pdfplumber.open(pdf_file) as pdf:
@@ -117,7 +115,7 @@ def extract_text_from_pdf(pdf_file):
                 text += extracted_text + "\n"
     return text.strip()
 
-# Function to match resume text with job roles
+
 def match_resume_to_jobs(resume_text):
     vectorizer = TfidfVectorizer(stop_words="english")
     tfidf_matrix = vectorizer.fit_transform([resume_text] + jobs_df["Job_Description"].tolist())
@@ -130,10 +128,10 @@ def match_resume_to_jobs(resume_text):
 
     return jobs_df.iloc[top_idx]["Job_Title"]
 
-# Streamlit UI
+
 st.title("AI Resume Screening & Job Matching")
 
-# Choose input method: Paste text or Upload PDF
+
 option = st.radio("Choose input method:", ["Paste Resume Text", "Upload PDF Resume"])
 
 resume_text = ""
@@ -146,7 +144,6 @@ elif option == "Upload PDF Resume":
         resume_text = extract_text_from_pdf(uploaded_file)
         st.text_area("Extracted Resume Text:", resume_text, height=200)
 
-# Run job matching when the button is clicked
 if st.button("Find Matching Jobs"):
     if resume_text:
         best_job = match_resume_to_jobs(resume_text)
